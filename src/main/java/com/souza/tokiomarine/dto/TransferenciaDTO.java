@@ -17,7 +17,7 @@ public class TransferenciaDTO {
 	private String contaDestino;
 
 	@NotNull(message = "campo data transferência não pode ser nulo")
-	private LocalDate dataTransferencia;
+	private String dataTransferencia;
 
 	private LocalDate dataAgendamento;
 
@@ -35,7 +35,7 @@ public class TransferenciaDTO {
 		this.contaDestino = transferencia.getContaDestino();
 		this.contaOrigem = transferencia.getContaOrigem();
 		this.dataAgendamento = LocalDate.now();
-		this.dataTransferencia = transferencia.getDataTransferencia();
+		this.dataTransferencia = transferencia.getDataTransferencia().toString();
 		this.dia = transferencia.getDia();
 		this.valor = transferencia.getValor();
 	}
@@ -56,11 +56,11 @@ public class TransferenciaDTO {
 		this.contaDestino = contaDestino;
 	}
 
-	public LocalDate getDataTransferencia() {
+	public String getDataTransferencia() {
 		return dataTransferencia;
 	}
 
-	public void setDataTransferencia(LocalDate dataTransferencia) {
+	public void setDataTransferencia(String dataTransferencia) {
 		this.dataTransferencia = dataTransferencia;
 	}
 

@@ -2,7 +2,10 @@ package com.souza.tokiomarine.controller;
 
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.List;
+import java.util.Locale;
 
 import javax.validation.Valid;
 
@@ -28,26 +31,32 @@ import com.souza.tokiomarine.service.TransferenciaService;
 public class TransferenciaController {
 
 	private static final Logger log = LoggerFactory.getLogger(TransferenciaController.class);
-	
+
+	private DateTimeFormatter df = new DateTimeFormatterBuilder()
+			.parseCaseInsensitive()
+			.appendPattern("dd-MM-yyyy")
+			.toFormatter(Locale.ENGLISH);
+
 	@Autowired
 	private TransferenciaService transferenciaService;
 	
 	@CrossOrigin(origins = "http://localhost:5173")
 	@PostMapping
 	public ResponseEntity<Response<TransferenciaDTO>> salvar(@Valid @RequestBody TransferenciaDTO transferenciaDTO, BindingResult result) {
+
 		Response<TransferenciaDTO> response = new Response<TransferenciaDTO>();
 
 		response.setData(transferenciaDTO);
 
-		Transferencia transferencia = this.converterDtoParaTransferencia(transferenciaDTO);
+		Transferencia transferencia = this.converterDtoParaTransferencia(transferenciaDTO, response);
 		this.populaDataAgendamento(transferencia);
 
-		if (result.hasErrors()) {
+		if (result.hasErrors()|| !response.getErrors().isEmpty()) {
 			log.error("Erro no agendamento: {}", result.getAllErrors());
 			result.getAllErrors().forEach(error -> response.getErrors().add(error.getDefaultMessage()));
 			return ResponseEntity.badRequest().body(response);
 		}
-		
+
 		if(transferencia.getDia() > 50) {
 			response.getErrors().add("Dias fora do range de calculo.");
 			return ResponseEntity.badRequest().body(response);
@@ -69,12 +78,18 @@ public class TransferenciaController {
 	}
 	
 	
-	private Transferencia converterDtoParaTransferencia(TransferenciaDTO transferenciaDTO) {
+	private Transferencia converterDtoParaTransferencia(TransferenciaDTO transferenciaDTO, Response<TransferenciaDTO> response) {
 		Transferencia transferencia = new Transferencia();
 		transferencia.setContaDestino(transferenciaDTO.getContaDestino());
 		transferencia.setContaOrigem(transferenciaDTO.getContaOrigem());
 		transferencia.setDataAgendamento(transferenciaDTO.getDataAgendamento());
-		transferencia.setDataTransferencia(transferenciaDTO.getDataTransferencia());
+
+		if(transferenciaDTO.getDataTransferencia() != null && this.validaDataTransferencia(transferenciaDTO.getDataTransferencia())){
+			transferencia.setDataTransferencia(LocalDate.parse(transferenciaDTO.getDataTransferencia(), df));
+		}else {
+			response.getErrors().add("Formato campo Data Transferencia esta incorreto ou nulo.");
+		}
+
 		transferencia.setDia(transferenciaDTO.getDia());
 		transferencia.setValor(transferenciaDTO.getValor());
 		return transferencia;
@@ -84,5 +99,13 @@ public class TransferenciaController {
 		transferencia.setDataAgendamento(LocalDate.now());
 	}
 
+
+	public boolean validaDataTransferencia(String dataTransferencia) {
+
+		String data = dataTransferencia;
+
+		return data.matches("^\\d{2}-\\d{2}-\\d{4}$");
+
+	}
 
 }
