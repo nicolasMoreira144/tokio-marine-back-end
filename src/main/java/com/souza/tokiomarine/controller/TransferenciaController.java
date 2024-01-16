@@ -1,6 +1,7 @@
 package com.souza.tokiomarine.controller;
 
 
+import java.time.LocalDate;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -35,10 +36,11 @@ public class TransferenciaController {
 	@PostMapping
 	public ResponseEntity<Response<TransferenciaDTO>> salvar(@Valid @RequestBody TransferenciaDTO transferenciaDTO, BindingResult result) {
 		Response<TransferenciaDTO> response = new Response<TransferenciaDTO>();
-		
+
 		response.setData(transferenciaDTO);
 
 		Transferencia transferencia = this.converterDtoParaTransferencia(transferenciaDTO);
+		this.populaDataAgendamento(transferencia);
 
 		if (result.hasErrors()) {
 			log.error("Erro no agendamento: {}", result.getAllErrors());
@@ -77,5 +79,10 @@ public class TransferenciaController {
 		transferencia.setValor(transferenciaDTO.getValor());
 		return transferencia;
 	}
+
+	private void populaDataAgendamento(Transferencia transferencia){
+		transferencia.setDataAgendamento(LocalDate.now());
+	}
+
 
 }
