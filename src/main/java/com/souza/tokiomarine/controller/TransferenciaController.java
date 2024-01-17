@@ -87,7 +87,7 @@ public class TransferenciaController {
 		if(transferenciaDTO.getDataTransferencia() != null && this.validaDataTransferencia(transferenciaDTO.getDataTransferencia())){
 			transferencia.setDataTransferencia(LocalDate.parse(transferenciaDTO.getDataTransferencia(), df));
 		}else {
-			response.getErrors().add("Formato campo Data Transferencia esta incorreto ou nulo.");
+			response.getErrors().add("Formato campo Data Transferência esta incorreto ou nulo.");
 		}
 
 		transferencia.setDia(transferenciaDTO.getDia());
@@ -101,10 +101,20 @@ public class TransferenciaController {
 
 
 	public boolean validaDataTransferencia(String dataTransferencia) {
+		boolean verificaData = true;
 
 		String data = dataTransferencia;
 
-		return data.matches("^\\d{2}-\\d{2}-\\d{4}$");
+		DateTimeFormatter parser = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+		try{
+			LocalDate dataValidation = LocalDate.parse(data, parser);
+		}catch(Exception e){
+			verificaData = false;
+		}
+
+		return verificaData;
+
 
 	}
 
