@@ -3,10 +3,7 @@ package com.souza.tokiomarine.controller;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 import java.util.List;
-import java.util.Locale;
-
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
@@ -20,7 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.souza.tokiomarine.dto.TransferenciaDTO;
 import com.souza.tokiomarine.model.Transferencia;
 import com.souza.tokiomarine.response.Response;
@@ -30,89 +26,89 @@ import com.souza.tokiomarine.service.TransferenciaService;
 @RequestMapping("transferencias")
 public class TransferenciaController {
 
-	private static final Logger log = LoggerFactory.getLogger(TransferenciaController.class);
+    private static final Logger log = LoggerFactory.getLogger(TransferenciaController.class);
 
-	private final DateTimeFormatter df = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    private final DateTimeFormatter df = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
-	@Autowired
-	private TransferenciaService transferenciaService;
-	
-	@CrossOrigin(origins = "http://localhost:5173")
-	@PostMapping
-	public ResponseEntity<Response<TransferenciaDTO>> salvar(@Valid @RequestBody TransferenciaDTO transferenciaDTO, BindingResult result) {
+    @Autowired
+    private TransferenciaService transferenciaService;
 
-		Response<TransferenciaDTO> response = new Response<TransferenciaDTO>();
+    @CrossOrigin(origins = "http://localhost:5173")
+    @PostMapping
+    public ResponseEntity<Response<TransferenciaDTO>> salvar(@Valid @RequestBody TransferenciaDTO transferenciaDTO, BindingResult result) {
 
-		response.setData(transferenciaDTO);
+        Response<TransferenciaDTO> response = new Response<TransferenciaDTO>();
 
-		Transferencia transferencia = this.converterDtoParaTransferencia(transferenciaDTO, response);
-		this.populaDataAgendamento(transferencia);
+        response.setData(transferenciaDTO);
 
-		if (result.hasErrors()|| !response.getErrors().isEmpty()) {
-			log.error("Erro no agendamento: {}", result.getAllErrors());
-			result.getAllErrors().forEach(error -> response.getErrors().add(error.getDefaultMessage()));
-			return ResponseEntity.badRequest().body(response);
-		}
+        Transferencia transferencia = this.converterDtoParaTransferencia(transferenciaDTO, response);
+        this.populaDataAgendamento(transferencia);
 
-		if(transferencia.getDia() > 50) {
-			response.getErrors().add("Dias fora do range de calculo.");
-			return ResponseEntity.badRequest().body(response);
-		}
-		
-		this.transferenciaService.salvar(transferencia);
+        if (result.hasErrors() || !response.getErrors().isEmpty()) {
+            log.error("Erro no agendamento: {}", result.getAllErrors());
+            result.getAllErrors().forEach(error -> response.getErrors().add(error.getDefaultMessage()));
+            return ResponseEntity.badRequest().body(response);
+        }
 
-		response.setData(transferenciaDTO);
+        if (transferencia.getDia() > 50) {
+            response.getErrors().add("Dias fora do range de calculo.");
+            return ResponseEntity.badRequest().body(response);
+        }
 
-		return ResponseEntity.ok(response);
-	}
+        this.transferenciaService.salvar(transferencia);
 
-	@CrossOrigin(origins = "http://localhost:5173")
-	@GetMapping
-	public ResponseEntity<List<TransferenciaDTO>> listar() {
-		List<TransferenciaDTO> transferenciaDTO = transferenciaService.listar();
+        response.setData(transferenciaDTO);
 
-		return ResponseEntity.ok(transferenciaDTO);
-	}
-	
-	
-	private Transferencia converterDtoParaTransferencia(TransferenciaDTO transferenciaDTO, Response<TransferenciaDTO> response) {
-		Transferencia transferencia = new Transferencia();
-		transferencia.setContaDestino(transferenciaDTO.getContaDestino());
-		transferencia.setContaOrigem(transferenciaDTO.getContaOrigem());
-		transferencia.setDataAgendamento(transferenciaDTO.getDataAgendamento());
+        return ResponseEntity.ok(response);
+    }
 
-		if(transferenciaDTO.getDataTransferencia() != null && this.validaDataTransferencia(transferenciaDTO.getDataTransferencia())){
-			transferencia.setDataTransferencia(LocalDate.parse(transferenciaDTO.getDataTransferencia(), df));
-		}else {
-			response.getErrors().add("Formato campo Data Transferência esta incorreto ou nulo.");
-		}
+    @CrossOrigin(origins = "http://localhost:5173")
+    @GetMapping
+    public ResponseEntity<List<TransferenciaDTO>> listar() {
+        List<TransferenciaDTO> transferenciaDTO = transferenciaService.listar();
 
-		transferencia.setDia(transferenciaDTO.getDia());
-		transferencia.setValor(transferenciaDTO.getValor());
-		return transferencia;
-	}
-
-	private void populaDataAgendamento(Transferencia transferencia){
-		transferencia.setDataAgendamento(LocalDate.now());
-	}
+        return ResponseEntity.ok(transferenciaDTO);
+    }
 
 
-	public boolean validaDataTransferencia(String dataTransferencia) {
-		boolean verificaData = true;
+    private Transferencia converterDtoParaTransferencia(TransferenciaDTO transferenciaDTO, Response<TransferenciaDTO> response) {
+        Transferencia transferencia = new Transferencia();
+        transferencia.setContaDestino(transferenciaDTO.getContaDestino());
+        transferencia.setContaOrigem(transferenciaDTO.getContaOrigem());
+        transferencia.setDataAgendamento(transferenciaDTO.getDataAgendamento());
 
-		String data = dataTransferencia;
+        if (transferenciaDTO.getDataTransferencia() != null && this.validaDataTransferencia(transferenciaDTO.getDataTransferencia())) {
+            transferencia.setDataTransferencia(LocalDate.parse(transferenciaDTO.getDataTransferencia(), df));
+        } else {
+            response.getErrors().add("Formato campo Data Transferência esta incorreto ou nulo.");
+        }
 
-		DateTimeFormatter parser = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        transferencia.setDia(transferenciaDTO.getDia());
+        transferencia.setValor(transferenciaDTO.getValor());
+        return transferencia;
+    }
 
-		try{
-			LocalDate dataValidation = LocalDate.parse(data, parser);
-		}catch(Exception e){
-			verificaData = false;
-		}
-
-		return verificaData;
+    private void populaDataAgendamento(Transferencia transferencia) {
+        transferencia.setDataAgendamento(LocalDate.now());
+    }
 
 
-	}
+    public boolean validaDataTransferencia(String dataTransferencia) {
+        boolean verificaData = true;
+
+        String data = dataTransferencia;
+
+        DateTimeFormatter parser = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+        try {
+            LocalDate dataValidation = LocalDate.parse(data, parser);
+        } catch (Exception e) {
+            verificaData = false;
+        }
+
+        return verificaData;
+
+
+    }
 
 }
