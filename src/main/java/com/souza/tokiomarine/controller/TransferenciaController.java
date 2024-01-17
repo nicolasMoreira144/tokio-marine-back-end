@@ -32,10 +32,7 @@ public class TransferenciaController {
 
 	private static final Logger log = LoggerFactory.getLogger(TransferenciaController.class);
 
-	private DateTimeFormatter df = new DateTimeFormatterBuilder()
-			.parseCaseInsensitive()
-			.appendPattern("dd-MM-yyyy")
-			.toFormatter(Locale.ENGLISH);
+	private final DateTimeFormatter df = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
 	@Autowired
 	private TransferenciaService transferenciaService;
