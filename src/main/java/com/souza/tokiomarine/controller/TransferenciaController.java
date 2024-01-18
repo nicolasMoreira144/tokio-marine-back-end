@@ -54,6 +54,8 @@ public class TransferenciaController {
 
         response.setData(transferenciaDTO);
 
+        this.limpaErros(response);
+
         return ResponseEntity.ok(response);
     }
 
@@ -64,6 +66,9 @@ public class TransferenciaController {
         return ResponseEntity.ok(transferenciaDTO);
     }
 
+    private void limpaErros(Response<TransferenciaDTO> response) {
+        response.getErrors().clear();
+    }
 
     private Transferencia converterDtoParaTransferencia(TransferenciaDTO transferenciaDTO, Response<TransferenciaDTO> response) {
         Transferencia transferencia = new Transferencia();
