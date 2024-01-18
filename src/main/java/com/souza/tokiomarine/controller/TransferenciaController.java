@@ -22,6 +22,7 @@ import com.souza.tokiomarine.model.Transferencia;
 import com.souza.tokiomarine.response.Response;
 import com.souza.tokiomarine.service.TransferenciaService;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("transferencias")
 public class TransferenciaController {
@@ -33,7 +34,6 @@ public class TransferenciaController {
     @Autowired
     private TransferenciaService transferenciaService;
 
-    @CrossOrigin(origins = "http://localhost:5173")
     @PostMapping
     public ResponseEntity<Response<TransferenciaDTO>> salvar(@Valid @RequestBody TransferenciaDTO transferenciaDTO, BindingResult result) {
 
@@ -62,7 +62,6 @@ public class TransferenciaController {
         return ResponseEntity.ok(response);
     }
 
-    @CrossOrigin(origins = "http://localhost:5173")
     @GetMapping
     public ResponseEntity<List<TransferenciaDTO>> listar() {
         List<TransferenciaDTO> transferenciaDTO = transferenciaService.listar();
