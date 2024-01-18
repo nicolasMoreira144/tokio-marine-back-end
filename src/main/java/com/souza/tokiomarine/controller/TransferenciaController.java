@@ -50,11 +50,6 @@ public class TransferenciaController {
             return ResponseEntity.badRequest().body(response);
         }
 
-        if (transferencia.getDia() > 50) {
-            response.getErrors().add("Dias fora do range de calculo.");
-            return ResponseEntity.badRequest().body(response);
-        }
-
         this.transferenciaService.salvar(transferencia);
 
         response.setData(transferenciaDTO);
@@ -82,7 +77,12 @@ public class TransferenciaController {
             response.getErrors().add("Formato campo Data Transferência esta incorreto ou nulo.");
         }
 
-        transferencia.setDia(transferenciaDTO.getDia());
+        if(transferenciaDTO.getDia() > 50){
+            response.getErrors().add("Dias fora do range de calculo.");
+        }else{
+            transferencia.setDia(transferenciaDTO.getDia());
+        }
+
         transferencia.setValor(transferenciaDTO.getValor());
         return transferencia;
     }
