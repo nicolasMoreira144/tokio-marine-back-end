@@ -97,7 +97,7 @@ public class TransferenciaController {
     }
 
 
-    public boolean validaDataTransferencia(String dataTransferencia) {
+    private boolean validaDataTransferencia(String dataTransferencia) {
         boolean verificaData = true;
 
         String data = dataTransferencia;
